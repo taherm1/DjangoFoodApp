@@ -1,0 +1,15 @@
+{%extends 'FoodApp/base.html' %}
+{%block base%}
+
+<br>
+
+<center>
+    <h2>Login Form</h2>
+    <br>
+    <form method="POST">
+        {{form.as_p}}
+        {%csrf_token%}
+        <input type="submit">
+    </form>
+</center>
+{%endblock%}
