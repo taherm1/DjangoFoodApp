@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
 from django.views.generic import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 def home(request):
@@ -72,6 +73,7 @@ def detail(request, id):
     return render(request, 'FoodApp/detail.html', context)
 
 
+@login_required
 def cart(request):
     if request.method == 'POST':
         if request.POST.get('action') == 'remove':
@@ -110,5 +112,8 @@ def checkout(request):
     return render(request, 'FoodApp/cart_list.html', {'msg': 'Order placed successfully'})
 
 
-class OrderHistory(ListView):
+class OrderHistory(LoginRequiredMixin, ListView):
     model = Order
+
+    def get_queryset(self):
+        return Order.objects.filter(id=self.request.user.id)
