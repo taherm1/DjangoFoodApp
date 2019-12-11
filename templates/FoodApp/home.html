@@ -22,9 +22,9 @@
             <div class="bottom-wrap">
                 <form method="POST">
                     <span class="text-muted">Quantity:</span>
-                    <input type="number" name="quantity" min="1" max="20">
+                    <input type="number" name="quantity" value = "1" min="1" max="20">
                     <input type="text" hidden name="product" value="{{product.id}}">
-                    <input type="submit" value="Add to cart" class=" btn btn-sm btn-primary float-right mr-2">
+                    <input type="submit" value="Add to cart" class=" btn btn-sm btn-primary float-right mr-4">
                     {%csrf_token%}
                 </form>
                 <br>

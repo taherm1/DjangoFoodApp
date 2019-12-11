@@ -1,51 +1,52 @@
 from django.shortcuts import render
 from django.urls import reverse
-from . import forms
-from .models import Product, Cart, Order
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
 from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
+
+from . import forms
+from .models import Product, Cart, Order
 
 
 def home(request):
-    context = dict()
     if request.method == 'POST':
-
-        if request.POST.get('quantity'):
+        quantity = int(request.POST.get('quantity'))
+        if quantity:
             product = Product.objects.get(id=request.POST.get('product'))
-            if Cart.objects.filter(product=product, user=request.user.id).count():
+            cart = Cart.objects.filter(product=product, user=request.user.id)
+            if cart.exists():
                 # Product present in cart, update quantity
-                item = Cart.objects.get(product=product, user=request.user.id)
-                print(item)
-                item.quantity += int(request.POST.get('quantity'))
-                item.save()
-                if item.quantity == '1':
-                    peices_msg = f'({item.quantity} peice)'
-                else:
-                    peices_msg = f'({item.quantity} peices)'
-                context['msg'] = f'{product.name} {peices_msg} added to your cart'
+                cart = cart.first()
+                cart.quantity += quantity
+                cart.save()
+
             else:
+                # Create a new product
                 cart = Cart.objects.create(
                     product=product,
                     user=request.user.id,
-                    quantity=request.POST.get('quantity'))
+                    quantity=quantity)
                 cart.save()
-                if cart.quantity == '1':
-                    peices_msg = f'({cart.quantity} peice)'
-                else:
-                    peices_msg = f'({cart.quantity} peices)'
-                context['msg'] = f'{product.name} {peices_msg} added to your cart'
-        else:
-            context['error'] = 'Please enter quantity'
 
-    product_list = Product.objects.all()
-    count = Cart.objects.filter(user=request.user.id).count()
-    context['product_list'] = product_list
-    context['cart_count'] = count
-    return render(request, 'FoodApp/home.html', context)
+            if quantity == '1':
+                peices_msg = '(1 peice)'
+            else:
+                peices_msg = f'({quantity} peices)'
+            message = f'{product.name} {peices_msg} added to your cart'
+            messages.success(request, message)
+        else:
+            messages.error(request, 'Please enter quantity')
+
+        return HttpResponseRedirect(reverse('home'))
+    else:
+        product_list = Product.objects.all()
+        count = Cart.objects.filter(user=request.user.id).count()
+        context = {"product_list": product_list, 'cart_count': count}
+        return render(request, 'FoodApp/home.html', context)
 
 
 def register(request):
@@ -63,7 +64,7 @@ def register(request):
         send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list)
 
         context['form'] = form
-        context['msg'] = 'User registered successfully'
+        messages.success(request, 'User registered successfully')
     return render(request, 'FoodApp/register.html', context)
 
 
@@ -108,12 +109,13 @@ def checkout(request):
     message = f'Hi, {request.user.username}! Thank for ordering with Food App'
     recipient_list = [request.user.email]
     send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list)
+    messages.success(request, 'Order placed successfully')
 
-    return render(request, 'FoodApp/cart_list.html', {'msg': 'Order placed successfully'})
+    return render(request, 'FoodApp/cart_list.html')
 
 
 class OrderHistory(LoginRequiredMixin, ListView):
     model = Order
 
     def get_queryset(self):
-        return Order.objects.filter(id=self.request.user.id)
+        return Order.objects.filter(user=self.request.user.id).order_by('-date')

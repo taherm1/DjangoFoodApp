@@ -23,6 +23,9 @@ class Cart(models.Model):
     quantity = models.IntegerField()
     user = models.CharField(max_length=255)
 
+    def __str__(self):
+        return f'{self.product} x {self.quantity}'
+
     def total_price(self):
         return self.quantity * self.product.price
 
@@ -34,6 +37,9 @@ class Order(models.Model):
     status = models.IntegerField(
         default=0, choices=[(0, 'PENDING'), (1, 'DISPATCHED'), (2, 'COMPLETE')])
     date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.product} x {self.quantity}'
 
     def total_price(self):
         return self.quantity * self.product.price

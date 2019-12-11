@@ -61,19 +61,15 @@
     </nav>
 
     <div class="container-fluid">
-        {%if msg%}
+        
+        {% if messages %}
         <br>
-        <div class="alert alert-success">
-            {{msg}}
+        {% for message in messages %}
+        <div class="alert alert-{{message.tags}}">
+            {{message}}
         </div>
+        {%endfor%}
         {%endif%}
-        {%if error%}
-        <br>
-        <div class="alert alert-warning">
-            {{error}}
-        </div>
-        {%endif%}
-
 
         {%block base%}
 

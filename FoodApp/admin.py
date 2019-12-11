@@ -11,7 +11,7 @@ class AdminCartModel(admin.ModelAdmin):
 
 
 class AdminOrderModel(admin.ModelAdmin):
-    list_display = ('product', 'quantity', 'user', 'status')
+    list_display = ('product', 'quantity', 'user', 'status', 'date')
 
 
 admin.site.register(models.Product, AdminProductModel)
