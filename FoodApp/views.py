@@ -32,7 +32,7 @@ def home(request):
                     quantity=quantity)
                 cart.save()
 
-            if quantity == '1':
+            if quantity == 1:
                 peices_msg = '(1 peice)'
             else:
                 peices_msg = f'({quantity} peices)'
@@ -70,7 +70,8 @@ def register(request):
 
 def detail(request, id):
     product = Product.objects.get(id=id)
-    context = {'product': product}
+    count = Cart.objects.filter(user=request.user.id).count()
+    context = {'product': product, 'cart_count' : count}
     return render(request, 'FoodApp/detail.html', context)
 
 

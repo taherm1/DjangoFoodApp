@@ -2,7 +2,7 @@
 {%block base%}
 
 
-<div class="card mb-6">
+<div class="card mb-6  mt-2">
     <div class="row no-gutters">
         <div class="col-md-4">
             <img src="{{product.image.url}}" class="card-img">
@@ -11,7 +11,18 @@
             <div class="card-body">
                 <h5 class="card-title">{{product.name}}</h5>
                 <p class="card-text">{{product.description}}</p>
-                <a href="#" class="btn btn-primary">Add to cart</a>
+                <h5 class="card-title">Price</h5>
+                <h5 class="card-text">₹{{product.price}}</h5>
+                <br>
+                <form method="POST" action="/">
+                    {%csrf_token%}
+                    <span class="text-muted">Quantity</span>
+                    <br>
+                    <input hidden name="product" value="{{product.id}}">
+                    <input class ="mr-2" type="number" name ="quantity"min="0" max="100" value="1">
+                    <input type="submit" value="Add to Cart" class="btn btn-primary mt-2">
+
+                </form>
             </div>
         </div>
     </div>
